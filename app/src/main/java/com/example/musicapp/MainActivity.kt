@@ -1,20 +1,34 @@
 package com.example.musicapp
 
+import android.app.Activity
 import android.content.ContentUris
+import android.content.DialogInterface
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
+import android.provider.Settings
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.musicapp.adapters.SongsAdapter
 import com.example.musicapp.databinding.ActivityMainBinding
 import com.example.musicapp.model.Audio
-import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
-
+    private val getResult =
+        registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) {
+            title = it.resultCode.toString()
+            if (it.resultCode == Activity.RESULT_OK) {
+                getAudioFiles()
+            }
+        }
     private lateinit var binding:ActivityMainBinding
     private val audioList = mutableListOf<Audio>()
     private val adapter = SongsAdapter(audioList)
@@ -23,10 +37,28 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        askPermission()
         initRecycler()
-        getAudioFiles()
 
+    }
+    fun askPermission(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if(!Environment.isExternalStorageManager()){
+                val builder = AlertDialog.Builder(this)
+        builder.setTitle("Music App")
+        builder.setMessage("Necesita otorgar permisos para acceder a los archivos del dispositivo")
+        builder.setPositiveButton("Ok") { dialogInterface: DialogInterface, i: Int ->
+                    val i = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                    getResult.launch(i)
+        }
+        builder.setNegativeButton("Cancelar") { dialogInterface: DialogInterface, i: Int ->
+            getAudioFiles()
+        }
+        builder.show()
+            }else{
+                getAudioFiles()
+            }
+        }
     }
     fun initRecycler(){
         binding.songsList.adapter = adapter
@@ -35,12 +67,10 @@ class MainActivity : AppCompatActivity() {
     fun getAudioFiles(){
         val audioCollection =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                title = "Q"
                 MediaStore.Audio.Media.getContentUri(
                     MediaStore.VOLUME_EXTERNAL
                 )
             } else {
-                title = "Not Q"
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
             }
         val projection = arrayOf(
@@ -50,17 +80,13 @@ class MainActivity : AppCompatActivity() {
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.SIZE,
         )
-        val selection = "${MediaStore.Audio.Media.DURATION} >= ?"
-        val selectionArgs = arrayOf(
-            TimeUnit.MILLISECONDS.convert(0,TimeUnit.MINUTES).toString()
-        )
-        val sortOrder = "${MediaStore.Audio.Media.DISPLAY_NAME} ASC"
+        val selection = ""
         applicationContext.contentResolver.query(
             audioCollection,
             projection,
-            "",
-            emptyArray(),
-            sortOrder
+            null,
+            null,
+           null
         )?.use { cursor ->
             // Cache column indices.
             val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)

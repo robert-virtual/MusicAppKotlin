@@ -9,7 +9,7 @@ class SongsViewHolder(view:View):RecyclerView.ViewHolder(view) {
     val binding = SongItemBinding.bind(view)
 
     fun render(audio:Audio){
-        binding.songTitle.text = audio.name
+        binding.songTitle.text = audio.name.trim().substring(0,audio.name.lastIndexOf("."))
 
         var artist = audio.artist
         if (artist == "<unknown>") artist = "Artista Desconocido"
