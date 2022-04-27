@@ -23,6 +23,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:id="@+id/songsList"
+        android:layout_alignParentTop="true"
         android:layout_above="@+id/playing"
         tools:listitem="@layout/song_item"
         android:layout_height="wrap_content"/>
@@ -32,7 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="65dp"
         android:layout_alignParentBottom="true"
-        android:background="#404040"
+        android:background="#333333"
         android:padding="10dp"
         android:visibility="gone"
         tools:visibility="visible">

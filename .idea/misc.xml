@@ -7,8 +7,10 @@
         <entry key="..\:/Users/rober/AndroidStudioProjects/MusicApp/app/src/main/res/drawable/ic_pause.xml" value="0.2265" />
         <entry key="..\:/Users/rober/AndroidStudioProjects/MusicApp/app/src/main/res/drawable/ic_play_arrow.xml" value="0.2265" />
         <entry key="..\:/Users/rober/AndroidStudioProjects/MusicApp/app/src/main/res/drawable/ic_previous_arrow.xml" value="0.2265" />
+        <entry key="..\:/Users/rober/AndroidStudioProjects/MusicApp/app/src/main/res/drawable/ic_search.xml" value="0.2265" />
         <entry key="..\:/Users/rober/AndroidStudioProjects/MusicApp/app/src/main/res/layout/activity_main.xml" value="0.264" />
         <entry key="..\:/Users/rober/AndroidStudioProjects/MusicApp/app/src/main/res/layout/song_item.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/rober/AndroidStudioProjects/MusicApp/app/src/main/res/menu/search_menu.xml" value="0.25416666666666665" />
       </map>
     </option>
   </component>

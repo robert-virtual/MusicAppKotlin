@@ -12,7 +12,9 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.provider.Settings
+import android.view.Menu
 import android.view.View
+import android.widget.SearchView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -32,6 +34,7 @@ class MainActivity : AppCompatActivity() {
             getAudioFiles()
         }
     private lateinit var binding:ActivityMainBinding
+    private val audioListCopy = mutableListOf<Audio>()
     private val audioList = mutableListOf<Audio>()
     private val adapter = SongsAdapter(audioList){it,idx->
         onSelectAudioItem(it,idx)
@@ -46,6 +49,38 @@ class MainActivity : AppCompatActivity() {
         setCurrentSong()
         initButtonListeners()
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.search_menu,menu)
+        val search  = menu.findItem(R.id.search_icon)
+        val searchView = search.actionView as SearchView
+        searchView.queryHint = "Buscar cancion"
+        searchView.setOnQueryTextListener(object:SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                searchSongs(query)
+                return false
+            }
+
+            override fun onQueryTextChange(query: String?): Boolean {
+                searchSongs(query)
+                return false
+            }
+
+        })
+        return super.onCreateOptionsMenu(menu)
+    }
+    fun searchSongs(query:String?){
+
+        if (query != null){
+            val results = audioListCopy.filter { it.name.contains(query) }
+            audioList.clear()
+            audioList.addAll(results)
+        }else{
+            audioList.clear()
+            audioList.addAll(audioListCopy)
+        }
+        adapter.notifyDataSetChanged()
     }
     fun initButtonListeners(){
         binding.btnPlay.setOnClickListener {
@@ -172,6 +207,7 @@ class MainActivity : AppCompatActivity() {
                     id
                 )
                 audioList.add(Audio(contentUri,name, artist,duration,size))
+                audioListCopy.add(Audio(contentUri,name, artist,duration,size))
                 adapter.notifyItemInserted(audioList.size-1)
                 //audioList += Audio(contentUri,name, artist,duration,size)
 
