@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.ContentUris
 import android.content.DialogInterface
 import android.content.Intent
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -18,8 +19,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.musicapp.adapters.SongsAdapter
 import com.example.musicapp.databinding.ActivityMainBinding
 import com.example.musicapp.model.Audio
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
+    private var mMediaPlayer: MediaPlayer? = null
+
     private val getResult =
         registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -31,7 +35,9 @@ class MainActivity : AppCompatActivity() {
         }
     private lateinit var binding:ActivityMainBinding
     private val audioList = mutableListOf<Audio>()
-    private val adapter = SongsAdapter(audioList)
+    private val adapter = SongsAdapter(audioList){
+        onSelectAudioItem(it)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +46,15 @@ class MainActivity : AppCompatActivity() {
         askPermission()
         initRecycler()
 
+    }
+    fun onSelectAudioItem(audio:Audio){
+        mMediaPlayer?.release()
+        mMediaPlayer = null
+        mMediaPlayer = MediaPlayer().apply {
+                setDataSource(applicationContext,audio.uri)
+                prepare()
+                start()
+            }
     }
     fun askPermission(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -61,8 +76,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
     fun initRecycler(){
+        val manager = LinearLayoutManager(this)
         binding.songsList.adapter = adapter
-        binding.songsList.layoutManager = LinearLayoutManager(this)
+        binding.songsList.layoutManager = manager
+        //val decoration = DividerItemDecoration(this,manager.orientation)
+        //binding.songsList.addItemDecoration(decoration)
+
     }
     fun getAudioFiles(){
         val audioCollection =
@@ -80,13 +99,17 @@ class MainActivity : AppCompatActivity() {
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.SIZE,
         )
-        val selection = ""
+        val selection = "${MediaStore.Audio.Media.DURATION} >= ?"
+        val selectionArgs = arrayOf(
+            TimeUnit.MILLISECONDS.convert(1,TimeUnit.MINUTES).toString()
+        )
+        val sortOrder = "${MediaStore.Audio.Media.DISPLAY_NAME} ASC"
         applicationContext.contentResolver.query(
             audioCollection,
             projection,
-            null,
-            null,
-           null
+            selection,
+            selectionArgs,
+            sortOrder
         )?.use { cursor ->
             // Cache column indices.
             val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
@@ -117,5 +140,6 @@ class MainActivity : AppCompatActivity() {
             binding.loader.visibility = View.GONE
 
         }
+
     }
 }
