@@ -15,6 +15,7 @@ import android.provider.Settings
 import android.view.Menu
 import android.view.View
 import android.widget.SearchView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -25,7 +26,6 @@ import com.example.musicapp.model.Audio
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
-    private var mMediaPlayer: MediaPlayer? = null
     private val viewModel:MainViewModel by viewModels()
     private val getResult =
         registerForActivityResult(
@@ -84,16 +84,18 @@ class MainActivity : AppCompatActivity() {
     }
     fun initButtonListeners(){
         binding.btnPlay.setOnClickListener {
-            if (mMediaPlayer != null){
-                if (mMediaPlayer!!.isPlaying){
-                    mMediaPlayer?.pause()
-                    viewModel.pause(mMediaPlayer!!.currentPosition)
+            if (viewModel.mMediaPlayer != null){
+                if (viewModel.mMediaPlayer!!.isPlaying){
+                    viewModel.mMediaPlayer?.pause()
+                    viewModel.pause(viewModel.mMediaPlayer!!.currentPosition)
                     binding.btnPlay.setBackgroundResource(R.drawable.ic_play_arrow)
                 }else{
-                    mMediaPlayer?.seekTo(viewModel.length!!)
-                    mMediaPlayer?.start()
+                    viewModel.mMediaPlayer?.seekTo(viewModel.length!!)
+                    viewModel.mMediaPlayer?.start()
                     binding.btnPlay.setBackgroundResource(R.drawable.ic_pause)
                 }
+            }else{
+                Toast.makeText(this, "MediaPlayer null", Toast.LENGTH_SHORT).show()
             }
 
         }
@@ -118,16 +120,7 @@ class MainActivity : AppCompatActivity() {
 
     }
     fun onSelectAudioItem(audio:Audio,idx:Int){
-        viewModel.playSong(audio,idx)
-        if (viewModel.audio != null){
-            mMediaPlayer?.release()
-            mMediaPlayer = null
-            mMediaPlayer = MediaPlayer().apply {
-                setDataSource(applicationContext,viewModel.audio!!.uri)
-                prepare()
-                start()
-            }
-        }
+        viewModel.playSong(audio,idx,applicationContext)
         setCurrentSong()
     }
     fun askPermission(){
