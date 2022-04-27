@@ -64,8 +64,13 @@ class MainActivity : AppCompatActivity() {
         }
         binding.btnNext.setOnClickListener {
             if (viewModel.idx != null){
-                val idx = viewModel.idx!!+1
-                onSelectAudioItem(audioList[idx],idx)
+                var idx = viewModel.idx!!+1
+                if (idx == audioList.size){
+                    idx = 0
+                    onSelectAudioItem(audioList[idx],idx)
+                }else{
+                    onSelectAudioItem(audioList[idx],idx)
+                }
             }
         }
     }
@@ -132,7 +137,6 @@ class MainActivity : AppCompatActivity() {
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.SIZE,
-            MediaStore.Audio.Media.,
         )
         val selection = "${MediaStore.Audio.Media.DURATION} >= ?"
         val selectionArgs = arrayOf(
