@@ -4,11 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-<ProgressBar
+
+    <ProgressBar
     android:layout_width="wrap_content"
     android:id="@+id/loader"
     android:layout_centerInParent="true"
     android:layout_height="wrap_content"/>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,10 +19,72 @@
         android:layout_centerInParent="true"
         android:id="@+id/message"
          />
+
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:id="@+id/songsList"
+        android:layout_above="@+id/playing"
         tools:listitem="@layout/song_item"
         android:layout_height="wrap_content"/>
+
+    <RelativeLayout
+        android:id="@+id/playing"
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:layout_alignParentBottom="true"
+        android:background="#404040"
+        android:padding="10dp"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/songTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@+id/linearLayoutIcons"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            tools:text="Hello World!" />
+
+        <TextView
+            android:id="@+id/songArtist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/songTitle"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@+id/linearLayoutIcons"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#888888"
+            android:textSize="15sp"
+            tools:text="Hello World!" />
+
+        <LinearLayout
+            android:id="@+id/linearLayoutIcons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true">
+
+
+            <ImageView
+                android:id="@+id/btnPlay"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginHorizontal="10dp"
+                android:background="@drawable/ic_pause" />
+
+            <ImageView
+                android:id="@+id/btnNext"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginHorizontal="10dp"
+                android:background="@drawable/ic_next_arrow" />
+        </LinearLayout>
+    </RelativeLayout>
 
 </RelativeLayout>

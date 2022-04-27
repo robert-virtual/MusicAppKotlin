@@ -8,14 +8,13 @@ import com.example.musicapp.model.Audio
 class SongsViewHolder(view:View):RecyclerView.ViewHolder(view) {
     val binding = SongItemBinding.bind(view)
 
-    fun render(audio:Audio,onClickListener:(Audio)->Unit){
+    fun render(audio:Audio,idx:Int,onClickListener:(Audio,Int)->Unit){
         binding.songTitle.text = audio.name.trim().substring(0,audio.name.lastIndexOf("."))
         binding.songItem.setOnClickListener {
-            onClickListener(audio)
+            onClickListener(audio,idx)
         }
         var artist = audio.artist
         if (artist == "<unknown>") artist = "Artista Desconocido"
-        artist += "-${audio.duration}"
         binding.songArtist.text = artist
         var seconds = audio.duration/1000
         val minutes = seconds/60

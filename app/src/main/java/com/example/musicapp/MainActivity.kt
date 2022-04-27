@@ -14,6 +14,7 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.musicapp.adapters.SongsAdapter
@@ -23,20 +24,17 @@ import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
     private var mMediaPlayer: MediaPlayer? = null
-
+    private val viewModel:MainViewModel by viewModels()
     private val getResult =
         registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) {
-            title = it.resultCode.toString()
-            if (it.resultCode == Activity.RESULT_OK) {
-                getAudioFiles()
-            }
+            getAudioFiles()
         }
     private lateinit var binding:ActivityMainBinding
     private val audioList = mutableListOf<Audio>()
-    private val adapter = SongsAdapter(audioList){
-        onSelectAudioItem(it)
+    private val adapter = SongsAdapter(audioList){it,idx->
+        onSelectAudioItem(it,idx)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,16 +43,52 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         askPermission()
         initRecycler()
+        setCurrentSong()
+        initButtonListeners()
 
     }
-    fun onSelectAudioItem(audio:Audio){
-        mMediaPlayer?.release()
-        mMediaPlayer = null
-        mMediaPlayer = MediaPlayer().apply {
-                setDataSource(applicationContext,audio.uri)
+    fun initButtonListeners(){
+        binding.btnPlay.setOnClickListener {
+            if (mMediaPlayer != null){
+                if (mMediaPlayer!!.isPlaying){
+                    mMediaPlayer?.pause()
+                    viewModel.pause(mMediaPlayer!!.currentPosition)
+                    binding.btnPlay.setBackgroundResource(R.drawable.ic_play_arrow)
+                }else{
+                    mMediaPlayer?.seekTo(viewModel.length!!)
+                    mMediaPlayer?.start()
+                    binding.btnPlay.setBackgroundResource(R.drawable.ic_pause)
+                }
+            }
+
+        }
+        binding.btnNext.setOnClickListener {
+            if (viewModel.idx != null){
+                val idx = viewModel.idx!!+1
+                onSelectAudioItem(audioList[idx],idx)
+            }
+        }
+    }
+    fun setCurrentSong(){
+        if (viewModel.audio != null){
+            binding.playing.visibility = View.VISIBLE
+            binding.songTitle.text = viewModel.audio!!.name
+            binding.songArtist.text = viewModel.audio!!.artist
+        }
+
+    }
+    fun onSelectAudioItem(audio:Audio,idx:Int){
+        viewModel.playSong(audio,idx)
+        if (viewModel.audio != null){
+            mMediaPlayer?.release()
+            mMediaPlayer = null
+            mMediaPlayer = MediaPlayer().apply {
+                setDataSource(applicationContext,viewModel.audio!!.uri)
                 prepare()
                 start()
             }
+        }
+        setCurrentSong()
     }
     fun askPermission(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -98,6 +132,7 @@ class MainActivity : AppCompatActivity() {
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.SIZE,
+            MediaStore.Audio.Media.,
         )
         val selection = "${MediaStore.Audio.Media.DURATION} >= ?"
         val selectionArgs = arrayOf(
