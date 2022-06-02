@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         initButtonListeners()
 
     }
-
+    
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.search_menu,menu)
         val search  = menu.findItem(R.id.search_icon)
